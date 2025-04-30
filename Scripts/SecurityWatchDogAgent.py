@@ -1,5 +1,10 @@
+# security_watchdog_agent.py
+# Improved agent that logs structured alerts, supports future learning logic
+
 import re
 import requests
+from status_logger import log_status
+from datetime import datetime
 
 AUTH_LOG = "/var/log/auth.log"
 NTFY_TOPIC = "thefrogpit"
@@ -16,8 +21,8 @@ try:
         lines = f.readlines()[-100:]
         for line in lines:
             if any(pat in line for pat in BAD_PATTERNS):
-                send_ntfy(f"SECURITY ALERT: {line.strip()}")
+                alert_msg = f"SECURITY ALERT: {line.strip()}"
+                send_ntfy(alert_msg)
+                log_status("SecurityWatchdog", "ALERT", alert_msg)
 except Exception as e:
-    print("Security monitor error:", e)
-
-# Managed by: Security Watchdog Agent (under AutoGen "SecurityMonitor" group)
+    log_status("SecurityWatchdog", "ERROR", f"auth.log scan failed: {str(e)}")

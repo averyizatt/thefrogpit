@@ -1,6 +1,10 @@
+# sensor_sanity_agent.py
+# Checks frog tank sensor logs for temperature and humidity issues.
+
 import csv
 from pathlib import Path
 import requests
+from status_logger import log_status  # Logging to shared JSON log
 
 LOGDIR = Path("/home/thefrogpit/frog-api/logs")
 NTFY_TOPIC = "thefrogpit"
@@ -22,11 +26,21 @@ for sensor_file in LOGDIR.glob("*.csv"):
             temp = float(parts[2])
             humidity = float(parts[3])
 
-            if not (TEMP_THRESHOLDS[0] <= temp <= TEMP_THRESHOLDS[1]):
-                send_ntfy(f"ALERT: {sensor} TEMP out of range: {temp}")
-            if not (HUMIDITY_THRESHOLDS[0] <= humidity <= HUMIDITY_THRESHOLDS[1]):
-                send_ntfy(f"ALERT: {sensor} HUMIDITY out of range: {humidity}")
-    except Exception as e:
-        print("Sensor check error:", e)
+            temp_issue = not (TEMP_THRESHOLDS[0] <= temp <= TEMP_THRESHOLDS[1])
+            hum_issue = not (HUMIDITY_THRESHOLDS[0] <= humidity <= HUMIDITY_THRESHOLDS[1])
 
-# Managed by: Sensor Sanity Agent (under AutoGen "EnvironmentalMonitor" group)
+            if temp_issue:
+                msg = f"{sensor} TEMP out of range: {temp}"
+                send_ntfy(f"ALERT: {msg}")
+                log_status("SensorSanity", "ALERT", msg)
+
+            if hum_issue:
+                msg = f"{sensor} HUMIDITY out of range: {humidity}"
+                send_ntfy(f"ALERT: {msg}")
+                log_status("SensorSanity", "ALERT", msg)
+
+            if not temp_issue and not hum_issue:
+                log_status("SensorSanity", "OK", f"{sensor}: temp={temp}, humidity={humidity}")
+
+    except Exception as e:
+        log_status("SensorSanity", "ERROR", f"{sensor_file.name} failed to parse: {str(e)}")

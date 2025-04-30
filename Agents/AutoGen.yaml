@@ -1,15 +1,35 @@
 agents:
   - name: WebHealthMonitor
-    task: "Monitor WordPress and Frog Tank uptime"
-    command: "python3 /home/thefrogpit/agent-scripts/health_checker_agent.py"
+    task: "Monitor WordPress and Frog Tank uptime remotely on thefrogpit"
+    command: "ssh frogadmin@thefrogpit 'python3 /home/frogadmin/agent-scripts/health_checker_agent.py >> /mnt/shared/web_health.log 2>&1'"
     interval: 5m
 
   - name: SensorSanityMonitor
-    task: "Monitor terrarium temperature and humidity"
-    command: "python3 /home/thefrogpit/agent-scripts/sensor_sanity_agent.py"
+    task: "Check frog tank sensors on thefrogpit"
+    command: "ssh frogadmin@thefrogpit 'python3 /home/frogadmin/agent-scripts/sensor_sanity_agent.py >> /mnt/shared/sensor_sanity.log 2>&1'"
     interval: 5m
 
   - name: SecurityWatchdog
-    task: "Monitor server for bad logins"
-    command: "python3 /home/thefrogpit/agent-scripts/security_watchdog_agent.py"
+    task: "Watch SSH logs and alert for failed login attempts (thefrogpit)"
+    command: "ssh frogadmin@thefrogpit 'python3 /home/frogadmin/agent-scripts/security_watchdog_agent.py >> /mnt/shared/security_watchdog.log 2>&1'"
     interval: 5m
+
+  - name: DiskUsageMonitor
+    task: "Check disk usage and alert if partitions exceed threshold on thefrogpit"
+    command: "ssh frogadmin@thefrogpit 'python3 /home/frogadmin/agent-scripts/disk_usage_monitor.py >> /mnt/shared/disk_usage.log 2>&1'"
+    interval: 10m
+
+  - name: SSLExpiryChecker
+    task: "Monitor SSL certs for averyizatt.com and renew if needed"
+    command: "ssh frogadmin@thefrogpit 'python3 /home/frogadmin/agent-scripts/ssl_expiry_checker.py >> /mnt/shared/ssl_check.log 2>&1'"
+    interval: 12h
+
+  - name: BackupVerifier
+    task: "Verify WordPress backup archive and database dumps"
+    command: "ssh frogadmin@thefrogpit 'python3 /home/frogadmin/agent-scripts/backup_verifier.py >> /mnt/shared/backup_verify.log 2>&1'"
+    interval: 24h
+
+  - name: RedisEventSubscriber
+    task: "Monitor Redis pub/sub channel for critical events"
+    command: "python3 /home/frogadmin/agent-scripts/redis_subscriber_agent.py >> /srv/shared/logs/redis_listener.log 2>&1"
+    interval: 1m
