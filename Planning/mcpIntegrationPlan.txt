@@ -1,0 +1,126 @@
+
+AI Agent/MCP Server Integration for thefrogpit
+===============================================
+
+Overview:
+---------
+You uploaded your frog-api Flask app, and asked about how to incorporate AI Agent/MCP Server frameworks into your system, starting from that base.
+
+You later shared the MCP repository:
+https://github.com/punkpeye/awesome-mcp-servers
+
+You mentioned your second ThinkCentre (new node) is arriving, and asked about setting up full AI Agent orchestration across your servers, without affecting the main server's performance.
+
+---
+
+Summary of Current Setup:
+--------------------------
+Main Server (thefrogpit):
+  - Hosts: WordPress (averyizatt.com), Plex, Frog Tank API (Flask), Dashboard
+  - Mission-critical services
+
+New Server (thebrain - incoming ThinkCentre):
+  - Will host AI Agent Orchestration
+  - No effect on main server's core performance
+
+---
+
+Bigger Vision:
+--------------
+- Turn your home server into a modular **AI-agent-managed system**.
+- Use frameworks like **AutoGen**, **CrewAI**, or **OpenDevin** for real MCP Server functionality.
+- Your frog-api fits naturally as an agent input.
+
+---
+
+Integration Plan:
+=================
+
+Phase 1: Prep New ThinkCentre (1 day)
+-------------------------------------
+- Fresh Ubuntu Server 22.04 install
+- Set Hostname:
+    sudo hostnamectl set-hostname thebrain
+- Install Essentials:
+    sudo apt update && sudo apt upgrade -y
+    sudo apt install python3-pip git docker.io docker-compose htop curl nginx -y
+- Setup SSH keys for easy management.
+
+Phase 2: Deploy Agent Control Server (AutoGen/CrewAI) (1-2 days)
+----------------------------------------------------------------
+- Clone and install AutoGen:
+    git clone https://github.com/microsoft/autogen.git
+    cd autogen
+    pip install -r requirements.txt
+- Run basic MCP server:
+    python3 -m autogen.server
+- (Optional) Reverse proxy AutoGen server via Nginx for easy access.
+
+Phase 3: Create First Agents (2-3 days)
+---------------------------------------
+- Frog Tank Monitor Agent (poll temp/humidity and alert)
+- Service Health Monitor Agent (Nginx, Plex, etc.)
+- Backup Verifier Agent (check daily backups)
+- Security Watchdog Agent (logins anomaly detection)
+
+Phase 4: Orchestrate Agents (2 days)
+------------------------------------
+- Chain agents to work together automatically.
+- Example: Service Down -> Check Logs -> Try Restart -> Alert if fail.
+
+Phase 5: Dashboard + Admin (1-2 days)
+-------------------------------------
+- Add Homer tiles for agent statuses.
+- Build simple agent health UI.
+
+Phase 6: Future Expansion (later)
+---------------------------------
+- Add LLM agents for troubleshooting.
+- Integrate voice-controlled Jarvis system.
+- Predict failures and auto-tune servers.
+
+---
+
+Architecture Overview:
+=======================
+
+    [ESP32 Sensors]   [System Logs]    [App Status]    [Web Traffic]  
+            \             |                |               /
+             \            |                |              /
+             [AutoGen MCP Server] -- [Orchestrates All Agents]
+                          |
+                    [NTFY Alerts]
+                          |
+                  [User Dashboard (Frog, Plex, Admin)]
+
+---
+
+Practical Framework Choices:
+=============================
+- AutoGen (Microsoft) - Production-grade multi-agent system.
+- CrewAI - Lightweight agent team orchestration.
+- OpenDevin - For server/DevOps task automation.
+
+---
+
+Next Steps (Optional):
+======================
+- Build a starter repo (folders like `/agents`, `/config`, `/scripts`).
+- Create the first agent (Service Uptime Checker for Nginx/Plex).
+- Future: build full dashboard integration into Homer.
+
+---
+
+Conclusion:
+===========
+✅ Your current frog-api fits perfectly into a bigger MCP system.
+✅ Using a second ThinkCentre ("thebrain") avoids impacting your main services.
+✅ You can evolve gradually into full home-lab-scale AI agent management.
+
+---
+
+Ready to help build:
+- Starter repo
+- First example agent
+- Or both!
+

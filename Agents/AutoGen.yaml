@@ -1,0 +1,15 @@
+agents:
+  - name: WebHealthMonitor
+    task: "Monitor WordPress and Frog Tank uptime"
+    command: "python3 /home/thefrogpit/agent-scripts/health_checker_agent.py"
+    interval: 5m
+
+  - name: SensorSanityMonitor
+    task: "Monitor terrarium temperature and humidity"
+    command: "python3 /home/thefrogpit/agent-scripts/sensor_sanity_agent.py"
+    interval: 5m
+
+  - name: SecurityWatchdog
+    task: "Monitor server for bad logins"
+    command: "python3 /home/thefrogpit/agent-scripts/security_watchdog_agent.py"
+    interval: 5m
