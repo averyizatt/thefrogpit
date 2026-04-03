@@ -1,46 +1,70 @@
 # sensor_sanity_agent.py
-# Checks frog tank sensor logs for temperature and humidity issues.
+# Reads the latest CSV entry from each frog tank sensor log and checks whether
+# temperature and humidity are within acceptable thresholds.
+# Sends NTFY alerts when values drift out of range.
 
-import csv
 from pathlib import Path
+
 import requests
-from status_logger import log_status  # Logging to shared JSON log
+
+from status_logger import log_status
 
 LOGDIR = Path("/home/thefrogpit/frog-api/logs")
 NTFY_TOPIC = "thefrogpit"
-TEMP_THRESHOLDS = (60, 85)
-HUMIDITY_THRESHOLDS = (40, 80)
+AGENT = "SensorSanity"
+# Temperature thresholds in °F
+TEMP_MIN, TEMP_MAX = 60, 85
+# Humidity thresholds in %
+HUMIDITY_MIN, HUMIDITY_MAX = 40, 80
 
-def send_ntfy(message):
+
+def send_ntfy(message: str) -> None:
+    """Post a push notification to the configured NTFY topic."""
     try:
-        requests.post(f"https://ntfy.sh/{NTFY_TOPIC}", data=message.encode("utf-8"))
+        requests.post(
+            f"https://ntfy.sh/{NTFY_TOPIC}",
+            data=message.encode("utf-8"),
+            timeout=10,
+        )
     except Exception as e:
-        print("Failed to send NTFY:", e)
+        print(f"Failed to send NTFY: {e}")
 
-for sensor_file in LOGDIR.glob("*.csv"):
+
+def check_sensor_file(sensor_file: Path) -> None:
+    """Parse the last CSV row in sensor_file and validate thresholds."""
     try:
         with open(sensor_file) as f:
             last_line = f.readlines()[-1]
-            parts = last_line.strip().split(",")
-            sensor = parts[1]
-            temp = float(parts[2])
-            humidity = float(parts[3])
+        parts = last_line.strip().split(",")
+        sensor = parts[1]
+        temp = float(parts[2])
+        humidity = float(parts[3])
 
-            temp_issue = not (TEMP_THRESHOLDS[0] <= temp <= TEMP_THRESHOLDS[1])
-            hum_issue = not (HUMIDITY_THRESHOLDS[0] <= humidity <= HUMIDITY_THRESHOLDS[1])
+        temp_issue = not (TEMP_MIN <= temp <= TEMP_MAX)
+        hum_issue = not (HUMIDITY_MIN <= humidity <= HUMIDITY_MAX)
 
-            if temp_issue:
-                msg = f"{sensor} TEMP out of range: {temp}"
-                send_ntfy(f"ALERT: {msg}")
-                log_status("SensorSanity", "ALERT", msg)
+        if temp_issue:
+            msg = f"{sensor} TEMP out of range: {temp}"
+            send_ntfy(f"ALERT: {msg}")
+            log_status(AGENT, "ALERT", msg)
 
-            if hum_issue:
-                msg = f"{sensor} HUMIDITY out of range: {humidity}"
-                send_ntfy(f"ALERT: {msg}")
-                log_status("SensorSanity", "ALERT", msg)
+        if hum_issue:
+            msg = f"{sensor} HUMIDITY out of range: {humidity}"
+            send_ntfy(f"ALERT: {msg}")
+            log_status(AGENT, "ALERT", msg)
 
-            if not temp_issue and not hum_issue:
-                log_status("SensorSanity", "OK", f"{sensor}: temp={temp}, humidity={humidity}")
+        if not temp_issue and not hum_issue:
+            log_status(AGENT, "OK", f"{sensor}: temp={temp}, humidity={humidity}")
 
     except Exception as e:
-        log_status("SensorSanity", "ERROR", f"{sensor_file.name} failed to parse: {str(e)}")
+        log_status(AGENT, "ERROR", f"{sensor_file.name} failed to parse: {e}")
+
+
+def run() -> None:
+    """Iterate over all sensor CSV files in LOGDIR."""
+    for sensor_file in LOGDIR.glob("*.csv"):
+        check_sensor_file(sensor_file)
+
+
+if __name__ == "__main__":
+    run()
