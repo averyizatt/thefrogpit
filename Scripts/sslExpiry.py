@@ -33,6 +33,7 @@ def check_ssl_expiry() -> None:
     """Connect to HOSTNAME and check how many days remain on its SSL certificate."""
     try:
         context = ssl.create_default_context()
+        context.minimum_version = ssl.TLSVersion.TLSv1_2
         with socket.create_connection((HOSTNAME, PORT), timeout=10) as sock:
             with context.wrap_socket(sock, server_hostname=HOSTNAME) as ssock:
                 cert = ssock.getpeercert()

@@ -37,7 +37,9 @@ def log_status(agent: str, level: str, message: str) -> None:
     logs.append(entry)
 
     try:
-        os.makedirs(os.path.dirname(STATUS_LOG), exist_ok=True)
+        log_dir = os.path.dirname(STATUS_LOG)
+        if log_dir:
+            os.makedirs(log_dir, exist_ok=True)
         with open(STATUS_LOG, "w") as f:
             json.dump(logs, f, indent=2)
     except OSError as e:

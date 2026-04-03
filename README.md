@@ -145,13 +145,13 @@ All configuration is done via constants at the top of each script. Key values to
 |---|---|---|
 | `NTFY_TOPIC` | All scripts | Your ntfy topic name |
 | `ENDPOINTS` | `HealthCheckerAgent.py` | URLs to health-check |
-| `hostname` | `HealthCheckerAgent.py`, `sslExpiry.py` | Domain to check SSL for |
+| `HOSTNAME` | `HealthCheckerAgent.py`, `sslExpiry.py` | Domain to check SSL for |
 | `AUTH_LOG` | `SecurityWatchDogAgent.py` | Path to auth log |
 | `LOGDIR` | `SensorSanityAgent.py` | Path to sensor CSV logs |
 | `BACKUP_DIR` | `backUpVerifier.py` | Path to backup directory |
 | `THRESHOLD` | `diskUsageMonitor.py` | Disk usage alert threshold (%) |
-| `TEMP_THRESHOLDS` | `SensorSanityAgent.py` | Safe temperature range (°F) |
-| `HUMIDITY_THRESHOLDS` | `SensorSanityAgent.py` | Safe humidity range (%) |
+| `TEMP_MIN` / `TEMP_MAX` | `SensorSanityAgent.py` | Safe temperature range (°F) |
+| `HUMIDITY_MIN` / `HUMIDITY_MAX` | `SensorSanityAgent.py` | Safe humidity range (%) |
 | `OLLAMA_URL` | `reasoningAgent.py` | Ollama API endpoint |
 
 ---

@@ -53,6 +53,7 @@ def check_endpoints() -> None:
 def check_ssl() -> None:
     """Check how many days remain before the SSL certificate expires."""
     context = ssl.create_default_context()
+    context.minimum_version = ssl.TLSVersion.TLSv1_2
     try:
         with socket.create_connection((SSL_HOSTNAME, SSL_PORT), timeout=10) as sock:
             with context.wrap_socket(sock, server_hostname=SSL_HOSTNAME) as ssock:
